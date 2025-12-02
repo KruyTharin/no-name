@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User as PrismaUser } from '@prisma/client';
+import { UserStatus } from '../dto/update-user-status.dto';
 
 export class UserEntity implements Omit<PrismaUser, 'password'> {
   @ApiProperty({
@@ -20,6 +21,20 @@ export class UserEntity implements Omit<PrismaUser, 'password'> {
     nullable: true,
   })
   name: string | null;
+
+  @ApiProperty({
+    enum: UserStatus,
+    example: UserStatus.ACTIVE,
+    description: 'User status',
+  })
+  status: UserStatus;
+
+  @ApiProperty({
+    example: null,
+    description: 'Soft delete timestamp',
+    nullable: true,
+  })
+  deletedAt: Date | null;
 
   @ApiProperty({
     example: '2024-12-02T10:00:00.000Z',

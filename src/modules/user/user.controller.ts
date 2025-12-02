@@ -9,22 +9,17 @@ import {
   HttpCode,
   HttpStatus,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UserEntity } from './entities/user.entity';
 import { PaginationInterceptor } from '@common/interceptors/pagination.interceptor';
-import { Pagination } from '@common/decorators/pagination.decorator';
-import type { PaginationParams } from '@common/decorators/pagination.decorator';
 import { PaginatedResult } from '@common/interfaces/paginated-result.interface';
+import { PaginationWithSearchDto } from '@common/dto/pagination-query.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -54,20 +49,6 @@ export class UserController {
   @Get()
   @UseInterceptors(PaginationInterceptor)
   @ApiOperation({ summary: 'Get all users with pagination' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number (default: 1)',
-    example: 1,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Items per page (default: 10, max: 100)',
-    example: 10,
-  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Users retrieved successfully',
@@ -94,9 +75,9 @@ export class UserController {
     },
   })
   async findAll(
-    @Pagination() pagination: PaginationParams,
+    @Query() query: PaginationWithSearchDto,
   ): Promise<PaginatedResult<UserEntity> | any> {
-    return this.userService.findAll(pagination.page, pagination.limit);
+    return this.userService.findAll(query);
   }
 
   @Get(':id')
@@ -148,7 +129,7 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOperation({ summary: 'Soft delete a user' })
   @ApiParam({
     name: 'id',
     description: 'User ID',
@@ -156,7 +137,7 @@ export class UserController {
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'User deleted successfully',
+    description: 'User soft deleted successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -164,5 +145,72 @@ export class UserController {
   })
   async remove(@Param('id') id: string): Promise<void> {
     return this.userService.remove(id);
+  }
+
+  @Patch(':id/restore')
+  @ApiOperation({ summary: 'Restore a soft-deleted user' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID',
+    example: 'clx1234567890',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User restored successfully',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'User is not deleted',
+  })
+  async restore(@Param('id') id: string): Promise<UserEntity> {
+    return this.userService.restore(id);
+  }
+
+  @Delete(':id/force')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Permanently delete a user (hard delete)' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID',
+    example: 'clx1234567890',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'User permanently deleted',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found',
+  })
+  async forceDelete(@Param('id') id: string): Promise<void> {
+    return this.userService.forceDelete(id);
+  }
+
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Update user status' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID',
+    example: 'clx1234567890',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User status updated successfully',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found',
+  })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateUserStatusDto,
+  ): Promise<UserEntity> {
+    return this.userService.updateStatus(id, updateStatusDto);
   }
 }

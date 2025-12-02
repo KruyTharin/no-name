@@ -4,23 +4,32 @@ export interface PaginationParams {
   page: number;
   limit: number;
   skip: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  search?: string;
+  filters?: Record<string, any>;
 }
 
 export const Pagination = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): PaginationParams => {
-    const request = ctx.switchToHttp().getRequest();
-    const page = parseInt(request.query.page || '1', 10);
-    const limit = parseInt(request.query.limit || '10', 10);
+    const query = ctx.switchToHttp().getRequest().query;
 
-    // Ensure page is at least 1
-    const validPage = page < 1 ? 1 : page;
-    // Ensure limit is between 1 and 100
-    const validLimit = limit < 1 ? 10 : limit > 100 ? 100 : limit;
+    const page = Math.max(1, parseInt(query.page || '1', 10));
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit || '10', 10)));
+
+    const reservedKeys = ['page', 'limit', 'sort', 'order', 'search'];
+    const filters: Record<string, any> = Object.keys(query)
+      .filter((key) => !reservedKeys.includes(key))
+      .reduce((acc, key) => ({ ...acc, [key]: query[key] }), {});
 
     return {
-      page: validPage,
-      limit: validLimit,
-      skip: (validPage - 1) * validLimit,
+      page,
+      limit,
+      skip: (page - 1) * limit,
+      sort: query.sort,
+      order: query.order === 'asc' ? 'asc' : 'desc',
+      search: query.search,
+      filters: Object.keys(filters).length > 0 ? filters : undefined,
     };
   },
 );

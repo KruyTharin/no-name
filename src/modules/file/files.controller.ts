@@ -22,7 +22,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { FilesService } from './files.service';
-import { UploadResponse } from 'src/interfaces/file.interface';
+import { UploadResponse } from '@/interfaces/file.interface';
 
 @ApiTags('Files')
 @Controller('files')

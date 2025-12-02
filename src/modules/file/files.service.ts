@@ -8,8 +8,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import * as Minio from 'minio';
-import { InjectMinio } from 'src/decorators/minio.decorator';
-import { UploadResponse } from 'src/interfaces/file.interface';
+import { InjectMinio } from '@/decorators/minio.decorator';
+import { UploadResponse } from '@/interfaces/file.interface';
 
 @Injectable()
 export class FilesService implements OnModuleInit {

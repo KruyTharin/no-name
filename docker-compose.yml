@@ -1,38 +1,25 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: postgres:16-alpine
+  app:
+    env_file:
+      - .env.staging
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
-      - '${POSTGRES_PORT:-5439}:5432'
+      - '${PORT:-3000}:${PORT:-3000}'
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-no-name}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  minio:
-    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
-    restart: always
-    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
-    ports:
-      - '${MINIO_PORT}:${MINIO_PORT}'
-      - '${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}'
-    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL}
     volumes:
-      - minio-data:/data
-
-volumes:
-  postgres-data:
-    driver: local
-  minio-data:
-    driver: local
+      - .:/app
+      - /app/node_modules

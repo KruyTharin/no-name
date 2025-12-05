@@ -1,29 +1,21 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# No-Name
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A NestJS application with PostgreSQL, Prisma, and MinIO for file storage.
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+NestJS application with modular architecture, database management via Prisma, and object storage using MinIO.
+
+## Features
+
+- ✅ NestJS framework with TypeScript
+- ✅ PostgreSQL database with Prisma ORM
+- ✅ MinIO object storage for file uploads
+- ✅ Docker & Docker Compose for deployment
+- ✅ Modular architecture with separate service configurations
+- ✅ API documentation with Swagger
+- ✅ Pagination support
+- ✅ Environment-based configuration
 
 ## Project setup
 
@@ -44,55 +36,290 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Run tests
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- [Node.js](https://nodejs.org/) (v20 or higher)
+- [pnpm](https://pnpm.io/) package manager
+
+## Environment Setup
+
+1. Create a `.env` file in the root directory:
 
 ```bash
-# unit tests
-$ pnpm run test
+cp .env.example .env
+```
 
-# e2e tests
-$ pnpm run test:e2e
+2. Update the environment variables in `.env`:
 
-# test coverage
-$ pnpm run test:cov
+```env
+# Database
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=no-name
+POSTGRES_PORT=5439
+DATABASE_URL="postgresql://postgres:postgres@localhost:5439/no-name?schema=public"
+
+# Server
+PORT=3000
+NODE_ENV=development
+
+# MinIO
+MINIO_PORT=9000
+MINIO_CONSOLE_PORT=8000
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=password
+MINIO_BUCKET_NAME=no-name
+MINIO_ENDPOINT=localhost
+MINIO_PUBLIC_URL=http://localhost:9000
+```
+
+## Project Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Generate Prisma Client
+pnpm prisma:generate
+
+# Run database migrations
+pnpm prisma:migrate
+```
+
+## Development
+
+### Option 1: Run with Docker (Recommended)
+
+```bash
+# Start all services (app, PostgreSQL, MinIO)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+### Option 2: Run Locally
+
+```bash
+# Start PostgreSQL only
+docker-compose -f docker-compose.postgres.yml up -d
+
+# Start MinIO only
+docker-compose -f docker-compose.minio.yml up -d
+
+# Run the application in development mode
+pnpm run start:dev
+```
+
+### Modular Service Management
+
+Run services individually based on your needs:
+
+```bash
+# PostgreSQL only
+docker-compose -f docker-compose.postgres.yml up -d
+
+# MinIO only
+docker-compose -f docker-compose.minio.yml up -d
+
+# PostgreSQL + MinIO
+docker-compose -f docker-compose.postgres.yml -f docker-compose.minio.yml up -d
+
+# Full stack (app + all services)
+docker-compose up -d
+```
+
+## Database Management
+
+```bash
+# Generate Prisma Client
+pnpm prisma:generate
+
+# Create and apply migrations
+pnpm prisma:migrate
+
+# Open Prisma Studio (database GUI)
+pnpm prisma:studio
+
+# Seed database (if seed script exists)
+pnpm prisma:seed
+```
+
+## Testing
+
+```bash
+# Unit tests
+pnpm run test
+
+# Watch mode
+pnpm run test:watch
+
+# E2E tests
+pnpm run test:e2e
+
+# Test coverage
+pnpm run test:cov
 ```
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Docker Production Deployment
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. **Build the Docker image:**
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker build -t no-name-app .
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+2. **Run with Docker Compose:**
 
-## Resources
+```bash
+# Production mode
+NODE_ENV=production docker-compose up -d
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+3. **Environment variables for production:**
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Update your `.env` file with production values:
 
-## Support
+- Use strong passwords for `POSTGRES_PASSWORD` and `MINIO_ROOT_PASSWORD`
+- Update `DATABASE_URL` to point to your production database
+- Set `NODE_ENV=production`
+- Update `MINIO_ENDPOINT` and `MINIO_PUBLIC_URL` to production URLs
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Manual Production Deployment
 
-## Stay in touch
+1. **Build the application:**
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+pnpm install --prod
+pnpm prisma:generate
+pnpm build
+```
+
+2. **Run migrations:**
+
+```bash
+pnpm prisma migrate deploy
+```
+
+3. **Start the application:**
+
+```bash
+NODE_ENV=production pnpm run start:prod
+```
+
+### Cloud Deployment Options
+
+#### Using Railway/Render/Heroku
+
+1. Connect your Git repository
+2. Set environment variables in the platform dashboard
+3. Add build command: `pnpm install && pnpm prisma:generate && pnpm build`
+4. Add start command: `pnpm prisma migrate deploy && pnpm run start:prod`
+
+#### Using AWS/GCP/Azure
+
+1. Build and push Docker image to container registry:
+
+```bash
+docker build -t your-registry/no-name-app:latest .
+docker push your-registry/no-name-app:latest
+```
+
+2. Deploy using container service (ECS, Cloud Run, Container Apps)
+3. Set up managed PostgreSQL database
+4. Set up object storage (S3, Cloud Storage, Blob Storage) or self-hosted MinIO
+
+### Health Checks
+
+The application includes health check endpoints:
+
+```bash
+# Check application health
+curl http://localhost:3000/health
+
+# Check API documentation
+curl http://localhost:3000/api
+```
+
+## Access Services
+
+- **Application:** http://localhost:3000
+- **API Documentation:** http://localhost:3000/api
+- **MinIO Console:** http://localhost:8000
+- **Prisma Studio:** Run `pnpm prisma:studio`
+
+## Troubleshooting
+
+### Database connection issues
+
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# View PostgreSQL logs
+docker-compose -f docker-compose.postgres.yml logs -f
+
+# Reset database (⚠️ WARNING: Deletes all data)
+docker-compose -f docker-compose.postgres.yml down -v
+docker-compose -f docker-compose.postgres.yml up -d
+```
+
+### MinIO connection issues
+
+```bash
+# Check if MinIO is running
+docker ps | grep minio
+
+# View MinIO logs
+docker-compose -f docker-compose.minio.yml logs -f
+
+# Reset MinIO (⚠️ WARNING: Deletes all files)
+docker-compose -f docker-compose.minio.yml down -v
+docker-compose -f docker-compose.minio.yml up -d
+```
+
+### Application issues
+
+```bash
+# View application logs
+docker-compose logs -f app
+
+# Rebuild application container
+docker-compose up -d --build app
+
+# Clean rebuild
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+## Project Structure
+
+```
+├── prisma/              # Database schema and migrations
+├── src/
+│   ├── common/          # Shared utilities, decorators, interceptors
+│   ├── modules/         # Feature modules
+│   │   ├── user/        # User module
+│   │   ├── file/        # File upload module
+│   │   ├── http-client/ # HTTP client module
+│   │   └── minio/       # MinIO integration
+│   ├── prisma/          # Prisma service
+│   └── main.ts          # Application entry point
+├── test/                # E2E tests
+├── docker-compose.yml           # Full stack deployment
+├── docker-compose.postgres.yml  # PostgreSQL only
+├── docker-compose.minio.yml     # MinIO only
+├── Dockerfile                   # Production container
+└── .env                         # Environment variables
+```
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is [MIT licensed](LICENSE).

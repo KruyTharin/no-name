@@ -9,6 +9,26 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Resource {
+  USER
+  PERMISSION
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum Action {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+
 model User {
   id        String      @id @default(cuid())
   email     String      @unique
@@ -25,9 +45,27 @@ model User {
   @@map("users")
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  id        String   @id @default(cuid())
+  roleId   String
+  resource  Resource
+  action    Action
+  createdAt DateTime @default(now())
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, resource, action])
+  @@index([resource, action])
+  @@map("role_permissions")
 }
